@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Official document for logback : https://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+<configuration scan="true" scanPeriod="30 seconds">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%highlight( %d{yyyy/MM/dd HH:mm:ss} [%thread] %-5level %class{$@}:%line) - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <logger name="org.nozino.microbean.helm.example" level="DEBUG" />
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</configuration>
