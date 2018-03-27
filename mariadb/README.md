@@ -1,1 +1,0 @@
-microBean Helm Example Project by nozino
