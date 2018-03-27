@@ -84,7 +84,6 @@ public class ChartInstallation {
 
 		Builder valuesBuilder = requestBuilder.getValuesBuilder();
 		valuesBuilder.setRaw("persistence: \n  existingClaim: " + pvcName);
-		requestBuilder.setValues(valuesBuilder);
 		
 		final Future<InstallReleaseResponse> releaseFuture = releaseManager.install(requestBuilder, chart);
 		assert releaseFuture != null;
