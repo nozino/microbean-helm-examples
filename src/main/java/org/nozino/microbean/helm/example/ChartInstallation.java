@@ -35,8 +35,8 @@ public class ChartInstallation {
 	private static final Logger logger = LoggerFactory.getLogger(ChartInstallation.class);
 
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
-		if (args.length == 0) {
-			System.out.println("Usage: cmd <conf>");
+		if (args.length < 3) {
+			System.out.println("Usage: cmd <kubernetes-config> <release-name> <pvc>");
 			return;
 		}
 
@@ -46,6 +46,9 @@ public class ChartInstallation {
 			System.err.println("File does not exist: " + fileName);
 			return;
 		}
+		
+		String releaseName = args[1];
+		String pvcName = args[2];
 
 		logger.debug("config file path: {}", fileName);
 
@@ -76,11 +79,11 @@ public class ChartInstallation {
 		final InstallReleaseRequest.Builder requestBuilder = InstallReleaseRequest.newBuilder();
 		assert requestBuilder != null;
 		requestBuilder.setTimeout(300L);
-		requestBuilder.setName("maria-004");
+		requestBuilder.setName(releaseName);
 		requestBuilder.setWait(true);
 
 		Builder valuesBuilder = requestBuilder.getValuesBuilder();
-		valuesBuilder.setRaw("persistence: \n  existingClaim: task-pv-claim"); // PVC must be created.
+		valuesBuilder.setRaw("persistence: \n  existingClaim: " + pvcName);
 		requestBuilder.setValues(valuesBuilder);
 		
 		final Future<InstallReleaseResponse> releaseFuture = releaseManager.install(requestBuilder, chart);
