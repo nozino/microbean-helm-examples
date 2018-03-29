@@ -28,8 +28,20 @@ public class HelmList {
 	private static final Logger logger = LoggerFactory.getLogger(HelmList.class);
 
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+		if (args.length < 1) {
+			System.out.println("Usage: cmd <bluemix-kubernetes-config>");
+			return;
+		}
+
+		String fileName = args[0];
+		File file = new File(fileName);
+		if (!file.exists() || !file.isFile()) {
+			System.err.println("File does not exist: " + fileName);
+			return;
+		}
+		
 		String idToken = null;
-		InputStream input = new FileInputStream(new File("C:/Users/jinho/.bluemix/plugins/container-service/clusters/bs-cluster/kube-config-seo01-bs-cluster.yml"));
+		InputStream input = new FileInputStream(new File(fileName));
 	    Yaml yaml = new Yaml();
 	    Map<String, Object> iccsConfig = (Map<String, Object>)yaml.load(input);
 	    if (iccsConfig != null) {
