@@ -41,6 +41,8 @@ public class HelmList {
 		}
 		
 		String idToken = null;
+		String url = null;
+		
 		InputStream input = new FileInputStream(new File(fileName));
 	    Yaml yaml = new Yaml();
 	    Map<String, Object> iccsConfig = (Map<String, Object>)yaml.load(input);
@@ -62,12 +64,29 @@ public class HelmList {
 	    			}
 	    		}
 	    	}
+	    	
+	    	ArrayList<Object> clusters = (ArrayList<Object>)iccsConfig.get("clusters");
+	    	if (clusters!= null) {
+	    		Map<String, Object> cluster_0 = (Map<String, Object>)clusters.get(0);
+	    		if (cluster_0 != null) {
+	    			Map<String, Object> cluster = (Map<String, Object>)cluster_0.get("cluster");
+	    			if (cluster != null) {
+	    				url = (String)cluster.get("server");
+	    			}
+	    		}
+	    	}
 	    }
 	    
+	    assert idToken.isEmpty() || url.isEmpty();
+	    
+	    if (logger.isDebugEnabled()) {
+	    	logger.debug("id-token from config file: ", idToken);
+	    	logger.debug("url from config file: ", url);
+	    }
 	    
 		ConfigBuilder builder = new ConfigBuilder();
 		
-		builder.withMasterUrl("https://169.56.69.242:32254");
+		builder.withMasterUrl(url);
 		builder.withOauthToken(idToken);
 		builder.withTrustCerts(true);
 		
@@ -76,7 +95,7 @@ public class HelmList {
 		final DefaultKubernetesClient client = new DefaultKubernetesClient(config);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("master url: {}", config.getMasterUrl());
+			logger.debug("master url: {}", client.getMasterUrl());
 			logger.debug("kubernetes api version: {}", client.getApiVersion());
 		}
 
