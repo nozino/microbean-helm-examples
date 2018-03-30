@@ -91,5 +91,6 @@ public class HelmInstall {
 		assert release != null;
 		
 		releaseManager.close();
+		tiller.close();
 	}
 }
