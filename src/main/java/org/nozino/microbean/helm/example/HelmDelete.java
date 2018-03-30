@@ -25,7 +25,7 @@ public class HelmDelete {
 	
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
 		if (args.length < 2) {
-			System.out.println("Usage: cmd <kubernetes-config> <release-name> <pvc>");
+			System.out.println("Usage: cmd <kubernetes-config> <release-name>");
 			return;
 		}
 
