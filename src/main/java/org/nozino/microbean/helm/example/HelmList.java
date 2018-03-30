@@ -72,17 +72,13 @@ public class HelmList {
 	    			Map<String, Object> cluster = (Map<String, Object>)cluster_0.get("cluster");
 	    			if (cluster != null) {
 	    				url = (String)cluster.get("server");
+	    				logger.debug("url: {}", url);
 	    			}
 	    		}
 	    	}
 	    }
 	    
 	    assert idToken.isEmpty() || url.isEmpty();
-	    
-	    if (logger.isDebugEnabled()) {
-	    	logger.debug("id-token from config file: ", idToken);
-	    	logger.debug("url from config file: ", url);
-	    }
 	    
 		ConfigBuilder builder = new ConfigBuilder();
 		
@@ -101,10 +97,10 @@ public class HelmList {
 
 		final Tiller tiller = new Tiller(client);
 		final ReleaseManager releaseManager = new ReleaseManager(tiller);
-
+		
 		final ListReleasesRequest.Builder requestBuilder = ListReleasesRequest.newBuilder();
 		assert requestBuilder != null;
-
+		
 		final Iterator<ListReleasesResponse> releaseFuture = releaseManager.list(requestBuilder.build());
 		assert releaseFuture != null;
 			
