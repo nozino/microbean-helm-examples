@@ -12,6 +12,9 @@ import java.net.URL;
 
 import org.microbean.helm.chart.URLChartLoader;
 
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -21,6 +24,9 @@ import hapi.release.ReleaseOuterClass.Release;
 import hapi.services.tiller.Tiller.InstallReleaseRequest;
 import hapi.services.tiller.Tiller.InstallReleaseResponse;
 import hapi.chart.ConfigOuterClass.Config.Builder;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -56,7 +62,7 @@ public class HelmInstall {
 		if (args.length > 1) {
 			builder.withOauthToken(fileName);
 		}
-		Config config = builder.build();
+	Config config = builder.build();
 
 		final DefaultKubernetesClient client = new DefaultKubernetesClient(config);
 
@@ -83,7 +89,9 @@ public class HelmInstall {
 		requestBuilder.setWait(true);
 
 		Builder valuesBuilder = requestBuilder.getValuesBuilder();
-		valuesBuilder.setRaw("persistence: \n  existingClaim: " + pvcName);
+		valuesBuilder.setRaw(
+				"persistence: \n" +
+				"  existingClaim: " + pvcName);
 		
 		final Future<InstallReleaseResponse> releaseFuture = releaseManager.install(requestBuilder, chart);
 		assert releaseFuture != null;
@@ -92,5 +100,29 @@ public class HelmInstall {
 		
 		releaseManager.close();
 		tiller.close();
+		
+		SecretList secrets = client.secrets().list();
+		
+		List<Secret> items = secrets.getItems();
+		
+		for (Secret item: items) {
+			ObjectMeta meta = item.getMetadata();
+			String namespace = meta.getNamespace();
+			String name = meta.getName();
+			if (
+					!namespace.isEmpty() && namespace.equals("default") && 
+					!name.isEmpty() && name.equals(releaseName)) {
+				Map<String, String> data = item.getData();
+				
+				if (!data.isEmpty()) {
+					logger.info("secret of {}", releaseName);
+					for (String key: data.keySet()) {
+						logger.info(". key: {}, value: {}", key, new String(Base64.getDecoder().decode(data.get(key))));
+					}
+				}
+			}
+		}
+		
+		client.close();
 	}
 }
